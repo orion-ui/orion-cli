@@ -1,0 +1,14 @@
+{
+  "include": ["index.ts", "utils/**/*"],
+  "exclude": ["__template-classic__", "__template-setup-service__"],
+  "compilerOptions": {
+    "strict": false,
+    "resolveJsonModule": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2020",
+    "allowSyntheticDefaultImports": true,
+    // Check to remove later
+    "ignoreDeprecations": "5.0"
+  }
+}

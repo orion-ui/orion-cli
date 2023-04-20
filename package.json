@@ -1,0 +1,54 @@
+{
+  "name": "@orion.ui/orion-cli",
+  "description": "CLI for Orion UI",
+  "bin": {
+    "orion": "outfile.cjs"
+  },
+  "files": [
+    "template",
+    "outfile.cjs",
+    "__template-classic__",
+    "__template-setup-service__"
+  ],
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0"
+  },
+  "scripts": {
+    "watch": "node ./scripts/build.mjs --watch",
+    "build": "node ./scripts/build.mjs",
+    "prerelease": "node ./scripts/build.mjs && npm publish --tag alpha --access public",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orion-ui/orion-cli.git"
+  },
+  "author": "Orion UI <dev@orion-ui.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/orion-ui/orion-cli/issues"
+  },
+  "homepage": "https://github.com/orion-ui/orion-cli#readme",
+  "devDependencies": {
+    "@orion.ui/eslint-plugin-orion": "^1.1.0",
+    "@types/fs-extra": "^11.0.1",
+    "@types/gradient-string": "^1.1.2",
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^5.58.0",
+    "@typescript-eslint/parser": "^5.58.0",
+    "esbuild": "^0.17.15",
+    "eslint": "^8.38.0",
+    "eslint-config-prettier": "^8.8.0",
+    "fs-extra": "^11.1.1",
+    "magicast": "^0.2.3",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.6.3",
+    "gradient-string": "^2.0.2",
+    "picocolors": "^1.0.0",
+    "radash": "^10.8.1"
+  }
+}

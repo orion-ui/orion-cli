@@ -1,0 +1,8 @@
+{ServiceExtendImport}
+
+export default{ServiceAbstract}class {ServiceName}{ServiceExtends} {
+	constructor () {
+		{ServiceSuper}
+		console.log(`{ServiceName} constructor`);
+	}
+}

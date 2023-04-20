@@ -1,0 +1,15 @@
+<template>
+	<div>
+		<pre>{ComponentName}</pre>
+	</div>
+</template>
+
+<script setup lang="ts">
+import {ComponentName}SetupService from '@/setup/{SetupServicePath}';
+const props = defineProps({ComponentName}SetupService.props);
+const setup = new {ComponentName}SetupService(props);
+</script>
+
+<style scoped lang="less">
+
+</style>

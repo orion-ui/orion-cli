@@ -1,0 +1,11 @@
+import {BaseServiceName} from '@/setup/{BaseServicePath}';
+
+type Props = SetupProps<typeof {ServiceName}.props>
+
+export default{ServiceAbstract}class {ServiceName} extends {BaseServiceName}<Props> {
+	static props = {};
+
+	constructor (props?: Props) {
+		super(props);
+	}
+}

@@ -1,0 +1,8 @@
+__template-classic__
+__template-setup-service__
+
+.npmrc
+.DS_Store
+
+node_modules
+outfile.cjs

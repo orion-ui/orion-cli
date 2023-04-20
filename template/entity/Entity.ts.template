@@ -1,0 +1,8 @@
+{EntityExtendImport}
+
+export default{EntityAbstract}class {EntityName}{EntityExtends} {
+	constructor () {
+		{EntitySuper}
+		console.log(`{EntityName} constructor`);
+	}
+}
