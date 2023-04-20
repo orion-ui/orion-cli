@@ -46,12 +46,12 @@ jobs:
         run: npm ci
 
       - name: Bump version
-        run: npm version "$(BRANCH=${GITHUB_REF_NAME} REPO=${GITHUB_REPOSITORY#*/} node __ci-tools__/npm-version.cjs)" --no-git-tag-version
+        run: npm version "$(BRANCH=${GITHUB_REF_NAME} REPO=${GITHUB_REPOSITORY#*/} node __ci-tools__/npm-version.mjs)" --no-git-tag-version
 
       - name: Build lib
         run: npm run build
 
       - name: Publish to NPM for pre-release
-        run: npm publish --tag "$(BRANCH=${GITHUB_REF_NAME} node __ci-tools__/npm-sanitize-tag.cjs)" --access public
+        run: npm publish --tag "$(BRANCH=${GITHUB_REF_NAME} node __ci-tools__/npm-sanitize-tag.mjs)" --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
