@@ -1,9 +1,9 @@
 import * as fs from 'fs-extra';
-import pc from 'picocolors';
 import { isCancel, log, text, confirm } from '@clack/prompts';
 import { dash } from 'radash';
-import { checkCurrentFolderIsProjectAsync, makePath, relativePath, useSpinnerAsync } from './tools';
+import { DEFAULT_CONFIG, applyNamingStyleAsync, checkCurrentFolderIsProjectAsync, clackLog, makePath, relativePath, useSpinnerAsync } from './tools';
 import OrionConfig from './OrionConfig';
+import picocolors from 'picocolors';
 
 export default class MakeProject {
 	config: InstanceType<typeof OrionConfig>['config'];
@@ -50,12 +50,12 @@ export default class MakeProject {
 		this.projectFolder = dash(this.projectName);
 		this.projectPath = makePath(this.projectFolder);
 
-		log.info(`Ok let's create the ${pc.bgBlue(` ${this.projectName} `)} project`);
+		log.info(`Ok let's create the ${picocolors.bgBlue(` ${this.projectName} `)} project`);
 	}
 
 	private async createProjectFolderAsync () {
 		if (fs.existsSync(this.projectPath)) {
-			log.warn(`${pc.yellow(this.projectPath)} already exists...`);
+			log.warn(`${picocolors.yellow(this.projectPath)} already exists...`);
 			const shouldContinue = await confirm({
 				message: `Should we replace it?`,
 				initialValue: false,
@@ -73,7 +73,7 @@ export default class MakeProject {
 		await useSpinnerAsync(
 			`Creating project folder`,
 			() => fs.mkdir(this.projectPath),
-			`${pc.blue(this.projectPath)} folder created`,
+			`${picocolors.blue(this.projectPath)} folder created`,
 		);
 	}
 
@@ -82,37 +82,64 @@ export default class MakeProject {
 	}
 
 	private async copyTemplateFilesAsync () {
+		// copyFilter for local development
+		const copyFilter = (src) => {
+			const exclude = [
+				/\.git$/,
+				/\.DS_Store/,
+			];
+
+			for (const regex of exclude) {
+				if (regex.test(src)) return false;
+			}
+
+			return true;
+		};
+
 		await useSpinnerAsync(
 			`Copying template files`,
 			async () => {
 				this.config.useSetupService
-					? await fs.copy(`${__dirname}/__template-setup-service__`, this.projectPath)
-					: await fs.copy(`${__dirname}/__template-classic__`, this.projectPath);
-
-				await this.createGitIgnoreFileAsync();
+					? await fs.copy(`${__dirname}/__template-setup-service__`, this.projectPath, { filter: copyFilter })
+					: await fs.copy(`${__dirname}/__template-classic__`, this.projectPath, { filter: copyFilter });
 			},
-			`Project scaffolded with following files:`,
+			`Project scaffolded in ${picocolors.blue(this.projectPath)}`,
 		);
 
+		if (this.config.fileNamingStyle !== DEFAULT_CONFIG.fileNamingStyle || this.config.folderNamingStyle !== DEFAULT_CONFIG.folderNamingStyle) {
+			process.chdir(this.projectFolder);
+			await applyNamingStyleAsync(this.config);
+			process.chdir('../');
+		}
 
-		const files = [];
-		const readdirRecursive = (path: string = this.projectFolder) => {
-			fs.readdirSync(path, { withFileTypes: true }).forEach((x) => {
-				if (x.isFile()) {
-					files.push(`${relativePath(path)}/${x.name}`);
+		if (process.argv.includes('--verbose')) {
+			const files = [];
+			const readdirRecursive = (path: string = this.projectFolder) => {
+				fs.readdirSync(path, { withFileTypes: true }).forEach((x) => {
+					if (x.isFile()) {
+						files.push(`${relativePath(path)}/${x.name}`);
+					} else {
+						readdirRecursive(makePath(path, x.name));
+					}
+				});
+			};
+
+			readdirRecursive();
+
+			log.message();
+			files.forEach((x) => {
+				const isVue = /\.vue$/.test(x);
+				const isTs = /\.ts$/.test(x);
+
+				if (isVue) {
+					clackLog(x, 'green');
+				} else if (isTs) {
+					clackLog(x, 'blue');
 				} else {
-					readdirRecursive(makePath(path, x.name));
+					clackLog(x, 'white');
 				}
 			});
-		};
-
-		readdirRecursive();
-		log.message(files.map(x => pc.blue(x)).join('\n'));
-	}
-
-	private async createGitIgnoreFileAsync () {
-		const gitIgnoreTemplate = await fs.readFile(`${__dirname}/template/gitignore.template`, { encoding: 'utf-8' });
-		await fs.writeFile(`${this.projectPath}/.gitignore`, gitIgnoreTemplate);
+		}
 	}
 
 	private async displayNextStepsAsync () {
@@ -121,6 +148,6 @@ export default class MakeProject {
 			`cd ${this.projectFolder}`,
 			`npm install`,
 			`npm run dev`,
-		].map(x => pc.green(x)).join('\n'));
+		].map(x => picocolors.green(x)).join('\n'));
 	}
 }

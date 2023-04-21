@@ -1,5 +1,7 @@
 import * as fs from 'fs-extra';
-import { CONFIG_FILE, MAGICAST_GENERATE_OPTIONS, NamingStyle, checkCurrentFolderIsProjectAsync, makePath } from './tools';
+import picocolors from 'picocolors';
+import { CONFIG_FILE, DEFAULT_CONFIG, MAGICAST_GENERATE_OPTIONS,
+	NamingStyle, OrionCliConfig, applyNamingStyleAsync, checkCurrentFolderIsProjectAsync, clackLog, makePath } from './tools';
 import { cancel, confirm, group, isCancel, log, note, select } from '@clack/prompts';
 import { loadFile, parseModule, writeFile } from 'magicast';
 
@@ -20,15 +22,7 @@ const namingStyleoptions: {value: NamingStyle, label: NamingStyle}[] = [
 
 
 export default class OrionConfig {
-	private privateConfig: {
-		fileNamingStyle: NamingStyle;
-		folderNamingStyle: NamingStyle;
-		useSetupService: boolean;
-	} = {
-			fileNamingStyle: 'PascalCase',
-			folderNamingStyle: 'kebab-case',
-			useSetupService: true,
-		};
+	private privateConfig: OrionCliConfig = { ...DEFAULT_CONFIG };
 
 	private get config () {
 		return { ...this.privateConfig };
@@ -38,6 +32,7 @@ export default class OrionConfig {
 	async initAsync () {
 		await checkCurrentFolderIsProjectAsync();
 		await this.checkConfigFileAsync(true);
+		await this.renameFilesAndFoldersAsync();
 	}
 
 	async loadConfigAsync (path?: string) {
@@ -67,7 +62,7 @@ export default class OrionConfig {
 		}
 	}
 
-	private async createConfigFileAsync (path?: string) {
+	private async createConfigFileAsync (path = process.cwd()) {
 		await this.setupConfigAsync();
 
 		const mod = parseModule(`export default {}`);
@@ -107,5 +102,18 @@ export default class OrionConfig {
 		) as typeof this.privateConfig;
 
 		Object.assign(this.privateConfig, config);
+	}
+
+	async renameFilesAndFoldersAsync () {
+		log.info(picocolors.blue(`Should we rename files and folders based on your config?`));
+		clackLog(`You may commit your changes before.`, 'yellow');
+		const shouldContinue = await confirm({
+			message: `Rename files and folders based on your config?`,
+			initialValue: true,
+		});
+
+		if (isCancel(shouldContinue) || !shouldContinue) return;
+
+		await applyNamingStyleAsync(this.config);
 	}
 }

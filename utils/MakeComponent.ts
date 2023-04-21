@@ -3,6 +3,7 @@ import { cancel, confirm, group, isCancel, log, text } from '@clack/prompts';
 import { BASE_SETUP_SERVICE, COMPONENTS_PATH, SETUP_SERVICE_PATH, checkCurrentFolderIsProjectAsync, formatString, makePath, relativePath } from './tools';
 import OrionConfig from './OrionConfig';
 import OrionRequired from './OrionRequired';
+import picocolors from 'picocolors';
 
 export default class MakeComponent {
 	config: InstanceType<typeof OrionConfig>['config'];
@@ -47,7 +48,7 @@ export default class MakeComponent {
 	}
 
 	private get setupServiceFileFullPath () {
-		return makePath(this.setupServiceFullPath, `${formatString(this.setupServiceName, this.config.fileNamingStyle)}.ts`);
+		return makePath(this.setupServiceFullPath, formatString(`${this.setupServiceName}.ts`, this.config.fileNamingStyle));
 	}
 
 	private get setupServiceRelativePath () {
@@ -117,7 +118,7 @@ export default class MakeComponent {
 		}
 
 		if (fs.existsSync(this.componentFileFullPath)) {
-			log.error(`Aborted: Component file already exists`);
+			log.error(picocolors.red(`Aborted: Component file already exists`));
 		} else {
 			const vueTemplate = withSetupService
 				? await fs.readFile(makePath(__dirname, 'template/components', 'SetupServiceComponent.vue.template'), { encoding: 'utf-8' })
@@ -141,13 +142,13 @@ export default class MakeComponent {
 
 	private async writeSetupServiceFileAsync () {
 		if (fs.existsSync(this.setupServiceFileFullPath)) {
-			log.error(`Aborted: SetupService file already exists`);
+			log.error(picocolors.red(`Aborted: SetupService file already exists`));
 		} else {
 			const setupServiceTemplate = await fs.readFile(makePath(__dirname, 'template/services', 'SetupService.ts.template'), { encoding: 'utf-8' });
 			const setupServiceFileContent = setupServiceTemplate
 				.replace(/{ServiceName}/g, this.setupServiceName)
 				.replace(/{ServiceAbstract}/g, ' ')
-				.replace(/{BaseServiceName}/g, BASE_SETUP_SERVICE)
+				.replace(/{BaseServiceName}/g, BASE_SETUP_SERVICE.replace(/\.ts$/, ''))
 				.replace(/{BaseServicePath}/g, this.required.baseSetupServiceFileRelativePath.replace(/\.ts$/, ''));
 
 			await fs.mkdir(this.setupServiceFullPath, { recursive: true });

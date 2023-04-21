@@ -1,13 +1,13 @@
 import * as fs from 'fs-extra';
+import { log } from '@clack/prompts';
 import { BASE_SETUP_SERVICE, SETUP_SERVICE_PATH, SHIMS_ORION, formatString, makePath, relativePath } from './tools';
 import OrionConfig from './OrionConfig';
-import { log } from '@clack/prompts';
 
 export default class OrionRequired {
 	config: InstanceType<typeof OrionConfig>['config'];
 
 	get baseSetupServiceFileFullPath () {
-		return makePath(SETUP_SERVICE_PATH, `${formatString(BASE_SETUP_SERVICE, this.config.fileNamingStyle)}.ts`);
+		return makePath(SETUP_SERVICE_PATH, formatString(BASE_SETUP_SERVICE, this.config.fileNamingStyle));
 	}
 
 	get baseSetupServiceFileRelativePath () {
@@ -27,7 +27,7 @@ export default class OrionRequired {
 	async checkBaseSetupServiceFileAsync () {
 		if (!fs.existsSync(this.baseSetupServiceFileFullPath)) {
 			await fs.copy(
-				makePath(__dirname, 'template', 'services', `${BASE_SETUP_SERVICE}.ts.template`),
+				makePath(__dirname, 'template', 'services', `${BASE_SETUP_SERVICE}.template`),
 				this.baseSetupServiceFileFullPath,
 			);
 
