@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import { isCancel, log, text, confirm } from '@clack/prompts';
 import { dash } from 'radash';
-import { DEFAULT_CONFIG, applyNamingStyleAsync, checkCurrentFolderIsProjectAsync, clackLog, makePath, relativePath, useSpinnerAsync } from './tools';
+import { DEFAULT_CONFIG, applyNamingStyleAsync, checkCurrentFolderIsProjectAsync, clackLog, isVerbose, makePath, relativePath, useSpinnerAsync } from './tools';
 import OrionConfig from './OrionConfig';
 import picocolors from 'picocolors';
 
@@ -112,7 +112,7 @@ export default class MakeProject {
 			process.chdir('../');
 		}
 
-		if (process.argv.includes('--verbose')) {
+		if (isVerbose()) {
 			const files = [];
 			const readdirRecursive = (path: string = this.projectFolder) => {
 				fs.readdirSync(path, { withFileTypes: true }).forEach((x) => {

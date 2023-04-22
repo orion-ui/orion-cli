@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import { camel, dash, pascal, sleep } from 'radash';
-import { spinner } from '@clack/prompts';
+import { log, spinner } from '@clack/prompts';
 import { GenerateOptions } from 'magicast';
 import { Colors, Formatter } from 'picocolors/types';
 import path from 'node:path';
@@ -31,6 +31,11 @@ export const MAGICAST_GENERATE_OPTIONS: GenerateOptions = {
 	useTabs: true,
 	tabWidth: 2,
 };
+
+
+export const isVerbose = () => process.argv.includes('--verbose');
+export const isDryRun = () => process.argv.includes('--dry-run');
+
 
 export const orionGradient = (str: string) => {
 	return process.stdout.isTTY && process.stdout.getColorDepth() > 8
@@ -224,7 +229,17 @@ function sanitizeImportStatement (str: string, config: OrionCliConfig) {
 	return resultStr;
 }
 
-export function clackLog (message: string, color: keyof Colors = 'white') {
+export const clackLog = (message: string, color: keyof Colors = 'white') => {
 	// eslint-disable-next-line no-console
 	console.log(picocolors.gray('│ '), (picocolors[color] as Formatter)(message));
-}
+};
+
+export const inOrionRepoAsync = async () => {
+	try {
+		const pack = await fs.readFile(makePath('package.json'), { encoding: 'utf-8' });
+		return JSON.parse(pack).name === '@orion.ui/orion';
+	} catch (e) {
+		log.error(e);
+		throw `🚨 Are you in your project root folder?`;
+	}
+};

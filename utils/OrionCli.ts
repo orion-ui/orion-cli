@@ -1,8 +1,9 @@
 import { isCancel, select } from '@clack/prompts';
+import { checkCurrentFolderIsProjectAsync } from './tools';
 import MakeProject from './MakeProject';
 import MakeComponent from './MakeComponent';
 import OrionConfig from './OrionConfig';
-import { checkCurrentFolderIsProjectAsync } from './tools';
+import OrionVolar from './OrionVolar';
 
 const scriptOptions = [
 	{
@@ -21,9 +22,14 @@ const scriptOptions = [
 		hint: `Create a new {name}Service`,
 	}, */
 	{
-		value: 'create-config',
+		value: 'orion-config',
 		label: `Manage config`,
 		hint: `Create or update Orion CLI config file`,
+	},
+	{
+		value: 'orion-volar',
+		label: `Volar intellisense`,
+		hint: `Create definition file for Volar intellisense based on your prefix`,
 	},
 	{
 		value: 'make-project',
@@ -64,7 +70,9 @@ export default class OrionCli {
 			return await new MakeComponent().initAsync();
 		// case 'make-entity':
 		// case 'make-service':
-		case 'create-config':
+		case 'orion-volar':
+			return await new OrionVolar().initAsync();
+		case 'orion-config':
 			return await new OrionConfig().initAsync();
 		}
 	}

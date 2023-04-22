@@ -1,0 +1,16 @@
+/**
+ * Auto generated file using cli command
+ * _> orion
+ * Then select 'Volar intellisense' option
+ * Manual changes will be overwritten
+ */
+
+declare module 'vue' {
+	export interface GlobalComponents {
+		{types}
+	}
+
+  export interface ComponentCustomProperties {}
+}
+
+export {};
