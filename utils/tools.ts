@@ -162,12 +162,12 @@ export const applyNamingStyleAsync = async (config: OrionCliConfig) => {
 
 			if (entry.isFile()) {
 				const fileContent = await fs.readFile(entryPath, { encoding: 'utf-8' });
-				const newFileCOntent = fileContent
+				const newFileContent = fileContent
 					.split('\n')
 					.map(line => sanitizeImportStatement(line, config))
 					.join('\n');
 
-				await fs.writeFile(entryPath, newFileCOntent, { encoding: 'utf-8' });
+				await fs.writeFile(entryPath, newFileContent, { encoding: 'utf-8' });
 
 				importStatementsRecap.push(entryPath);
 			} else if (entry.isDirectory()) {
@@ -203,6 +203,29 @@ export const applyNamingStyleAsync = async (config: OrionCliConfig) => {
 			clackLog(x, 'magenta');
 		}
 	}); */
+	// #endregion
+
+
+	// #region Router
+	const routerFilePath = makePath('src', 'router', 'index.ts');
+	const routerFileContent = await fs.readFile(routerFilePath, { encoding: 'utf-8' });
+	const importRegex = /(?<prefix>import\('@\/components\/)(?<content>.*)(?<suffix>\.vue'\))/;
+
+	const newFileContent = routerFileContent
+		.split('\n')
+		.map((x) => {
+			if (importRegex.test(x)) {
+				const currentFullPath = x.match(importRegex).groups.content;
+				const splitCurrentFullPath = currentFullPath.split('/');
+				const newFolderPath = splitCurrentFullPath.slice(0, -1).map(x => formatString(x, config.folderNamingStyle));
+				const newFileName = splitCurrentFullPath.slice(-1).map(x => formatString(x, config.fileNamingStyle));
+				return x.replace(importRegex, `$<prefix>${[...newFolderPath, ...newFileName].join('/')}$<suffix>`);
+			}
+			return x;
+		})
+		.join('\n');
+
+	await fs.writeFile(routerFilePath, newFileContent, { encoding: 'utf-8' });
 	// #endregion
 };
 
